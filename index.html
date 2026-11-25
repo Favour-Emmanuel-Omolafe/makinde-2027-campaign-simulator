@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Seyi Makinde 2027 Strategic Electoral Simulator (v4.0)</title>
+  <title>Seyi Makinde 2027 Strategic Electoral Simulator (v4.1)</title>
   <style>
     :root {
       --bg: #0b1120;
@@ -76,9 +76,17 @@
       background: var(--amber);
       color: #451a03;
     }
+    .btn.danger-btn {
+      border-color: var(--red);
+      color: #fecaca;
+    }
+    .btn.danger-btn.active {
+      background: var(--red);
+      color: #450a0a;
+    }
     .grid-main {
       display: grid;
-      grid-template-columns: 340px 1fr;
+      grid-template-columns: 350px 1fr;
       gap: 24px;
     }
     @media (max-width: 980px) {
@@ -107,6 +115,7 @@
       font-weight: 600;
     }
     .control-group label span { color: var(--accent); }
+    .control-group label span.warn-val { color: var(--red); }
     select, input[type="range"] {
       width: 100%;
       background: var(--panel-alt);
@@ -116,6 +125,7 @@
       padding: 8px;
     }
     input[type="range"] { padding: 0; accent-color: var(--accent); }
+    input[type="range"].danger-slider { accent-color: var(--red); }
     .checkbox-row {
       display: flex;
       align-items: center;
@@ -225,20 +235,23 @@
 </head>
 <body>
   <header>
-    <h1>🇳🇬 Seyi Makinde 2027 Strategic Electoral Simulator (v4.0)</h1>
-    <p>36-State + FCT Section 134 Constitutional Spread, Power-Rotation Zoning &amp; Transitional Trajectory Model &bull; Engineered by <strong>Favour Emmanuel Omolafe</strong></p>
+    <h1>🇳🇬 Seyi Makinde 2027 Strategic Electoral Simulator (v4.1)</h1>
+    <p>36-State + FCT Section 134 Constitutional Spread, Power-Rotation Zoning, Electoral Integrity &amp; Trajectory Model &bull; Engineered by <strong>Favour Emmanuel Omolafe</strong></p>
   </header>
 
   <div class="container">
+    <!-- ONE-CLICK STRATEGIC PRESETS -->
     <div class="presets">
       <button class="btn active" onclick="applyPreset('solo2027', this)">1. Jan 2027 Solo APM Run (53 Days Left | Single-Shot)</button>
       <button class="btn amber" onclick="applyPreset('obiSurgeTest', this)">2. Stress Test: What If APM Replicates Obi's 6.1M Surge?</button>
       <button class="btn" onclick="applyPreset('coalition2027', this)">3. Jan 2027 One-Term Transitional Coalition Pact</button>
-      <button class="btn" onclick="applyPreset('obi2023Bench', this)">4. 2023 Benchmark: 9-Month Surge (Obi LP Model)</button>
-      <button class="btn" onclick="applyPreset('successor2031', this)">5. 2027–2031: Institutionalizing Reset Nigeria (Post-Makinde Successor Build)</button>
+      <button class="btn danger-btn" onclick="applyPreset('riggingStress', this)">4. Rigging Stress Test: Coalition Under 25% Manipulation</button>
+      <button class="btn" onclick="applyPreset('obi2023Bench', this)">5. 2023 Benchmark: 9-Month Surge (Obi LP Model)</button>
+      <button class="btn" onclick="applyPreset('successor2031', this)">6. 2027–2031: Institutionalizing Reset Nigeria (Post-Makinde Successor Build)</button>
     </div>
 
     <div class="grid-main">
+      <!-- LEFT CONTROL PANEL -->
       <div class="card">
         <h2>⚙️ Strategic Levers &amp; Assumptions</h2>
 
@@ -269,6 +282,11 @@
           <input type="range" id="coalitionEff" min="0" max="100" step="2" value="0" oninput="runSim()" />
         </div>
 
+        <div class="control-group">
+          <label>Electoral Integrity / Rigging Friction <span id="rigVal" class="warn-val">0%</span></label>
+          <input type="range" id="riggingFriction" class="danger-slider" min="0" max="40" step="1" value="0" oninput="runSim()" />
+        </div>
+
         <label class="checkbox-row">
           <input type="checkbox" id="oneTermPledge" checked onchange="runSim()" />
           <span>One-Term Transitional Pledge (Eases 2031 Rotation Friction)</span>
@@ -280,10 +298,11 @@
         </label>
 
         <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border); font-size:0.82rem; color:var(--muted);">
-          <strong>Methodological Note:</strong> Structural sensitivity simulator calibrated on 2023 INEC state baselines and 2026 sub-national governance alignment (Oyo &amp; Bauchi anchors). Not a live opinion poll.
+          <strong>Methodological Note:</strong> Structural sensitivity simulator calibrated on 2023 INEC state baselines and 2026 sub-national governance alignment (Oyo &amp; Bauchi anchors). Rigging friction models asymmetric vote leakage in unguarded non-APM states.
         </div>
       </div>
 
+      <!-- RIGHT ANALYTICS & OUTPUTS -->
       <div>
         <div id="verdictBanner" class="banner danger"></div>
 
@@ -295,8 +314,8 @@
           </div>
           <div class="kpi">
             <div class="title">Projected APM Votes</div>
-            <div class="value" id="kpiVotes">1.29M</div>
-            <div class="sub" id="kpiShare">5.64% national vote share</div>
+            <div class="value" id="kpiVotes">0.89M</div>
+            <div class="sub" id="kpiShare">4.15% national vote share</div>
           </div>
           <div class="kpi">
             <div class="title">States Clearing &ge;25%</div>
@@ -306,7 +325,7 @@
           <div class="kpi">
             <div class="title">Section 134 Win Prob.</div>
             <div class="value" id="kpiProb">0.0%</div>
-            <div class="sub" id="kpiOyo">Oyo Feb 6 Safety Index: 44.1%</div>
+            <div class="sub" id="kpiOyo">Oyo Feb 6 Safety Index: 32.8%</div>
           </div>
         </div>
 
@@ -377,10 +396,7 @@
       ["FCT", "North-Central", 460000, 0.20, 0.58, 0.10, 0.07, 0.05, false]
     ];
 
-    let activePreset = 'solo2027';
-
     function applyPreset(type, btn) {
-      activePreset = type;
       document.querySelectorAll('.presets .btn').forEach(b => b.classList.remove('active'));
       if (btn) btn.classList.add('active');
 
@@ -389,6 +405,7 @@
         document.getElementById('runwayMonths').value = 2;
         document.getElementById('retentionRate').value = 65;
         document.getElementById('coalitionEff').value = 0;
+        document.getElementById('riggingFriction').value = 0;
         document.getElementById('oneTermPledge').checked = true;
         document.getElementById('obiSurgeMode').checked = false;
       } else if (type === 'obiSurgeTest') {
@@ -396,6 +413,7 @@
         document.getElementById('runwayMonths').value = 48;
         document.getElementById('retentionRate').value = 100;
         document.getElementById('coalitionEff').value = 0;
+        document.getElementById('riggingFriction').value = 0;
         document.getElementById('oneTermPledge').checked = true;
         document.getElementById('obiSurgeMode').checked = true;
       } else if (type === 'coalition2027') {
@@ -403,6 +421,15 @@
         document.getElementById('runwayMonths').value = 2;
         document.getElementById('retentionRate').value = 88;
         document.getElementById('coalitionEff').value = 86;
+        document.getElementById('riggingFriction').value = 0;
+        document.getElementById('oneTermPledge').checked = true;
+        document.getElementById('obiSurgeMode').checked = false;
+      } else if (type === 'riggingStress') {
+        document.getElementById('candZone').value = 'South-West';
+        document.getElementById('runwayMonths').value = 9;
+        document.getElementById('retentionRate').value = 88;
+        document.getElementById('coalitionEff').value = 86;
+        document.getElementById('riggingFriction').value = 25;
         document.getElementById('oneTermPledge').checked = true;
         document.getElementById('obiSurgeMode').checked = false;
       } else if (type === 'obi2023Bench') {
@@ -410,6 +437,7 @@
         document.getElementById('runwayMonths').value = 9;
         document.getElementById('retentionRate').value = 78;
         document.getElementById('coalitionEff').value = 0;
+        document.getElementById('riggingFriction').value = 0;
         document.getElementById('oneTermPledge').checked = false;
         document.getElementById('obiSurgeMode').checked = true;
       } else if (type === 'successor2031') {
@@ -417,6 +445,7 @@
         document.getElementById('runwayMonths').value = 48;
         document.getElementById('retentionRate').value = 95;
         document.getElementById('coalitionEff').value = 84;
+        document.getElementById('riggingFriction').value = 0;
         document.getElementById('oneTermPledge').checked = false;
         document.getElementById('obiSurgeMode').checked = false;
       }
@@ -442,12 +471,14 @@
       const runway = parseFloat(document.getElementById('runwayMonths').value);
       const retention = parseFloat(document.getElementById('retentionRate').value) / 100.0;
       const coalEff = parseFloat(document.getElementById('coalitionEff').value) / 100.0;
+      const rigging = parseFloat(document.getElementById('riggingFriction').value) / 100.0;
       const oneTerm = document.getElementById('oneTermPledge').checked;
       const obiSurge = document.getElementById('obiSurgeMode').checked;
 
       document.getElementById('runwayVal').textContent = `${runway} Months`;
       document.getElementById('retVal').textContent = `${Math.round(retention * 100)}%`;
       document.getElementById('coalVal').textContent = `${Math.round(coalEff * 100)}%`;
+      document.getElementById('rigVal').textContent = `${Math.round(rigging * 100)}%`;
 
       const readiness = Math.min(0.98, Math.max(0.15, 0.30 + 0.66 * (1 - Math.exp(-0.055 * runway))));
 
@@ -490,6 +521,25 @@
         const sum = apm + apc + ndc + adc + pdp;
         apm /= sum;
         apc /= sum;
+        ndc /= sum;
+        adc /= sum;
+        pdp /= sum;
+
+        // Asymmetric Electoral Integrity / Rigging Friction Layer
+        if (rigging > 0) {
+          const defenseCapacity = (0.55 * readiness + 0.45 * retention);
+          let effectiveRigging = 0;
+          if (isAnchor) {
+            effectiveRigging = rigging * 0.25 * (1.0 - 0.5 * defenseCapacity);
+          } else {
+            const vulnerability = 1.25 - (0.75 * defenseCapacity);
+            effectiveRigging = Math.min(0.55, Math.max(0.0, rigging * vulnerability));
+          }
+          const leakedApm = apm * effectiveRigging;
+          const leakedOpp = (ndc + adc + pdp) * (effectiveRigging * 0.5);
+          apm -= leakedApm;
+          apc += (leakedApm + leakedOpp);
+        }
 
         const apmVotes = Math.round(valid * apm);
         const apcVotes = Math.round(valid * apc);
@@ -520,7 +570,7 @@
       const natShare = (totalApmVotes / totalVotes) * 100.0;
       const winProb = (statesCleared >= 24 && totalApmVotes > totalApcVotes)
         ? Math.min(99.8, 70 + (statesCleared - 24) * 2.4)
-        : (statesCleared >= 20 ? 18.5 : 0.0);
+        : (statesCleared >= 20 && totalApmVotes > totalApcVotes ? 18.5 : 0.0);
       const oyoSafety = Math.min(78.0, Math.max(18.0, oyoPct * 1.15 + natShare * 0.35));
 
       document.getElementById('kpiReadiness').textContent = `${(readiness * 100).toFixed(1)}%`;
@@ -533,7 +583,10 @@
       const banner = document.getElementById('verdictBanner');
       if (winProb >= 70) {
         banner.className = 'banner success';
-        banner.innerHTML = `<strong>🏆 SECTION 134 CONSTITUTIONAL FLOOR CLEARED (${statesCleared}/37 States):</strong> Pooling Oyo &amp; Bauchi blocs into a unified coalition clears the 24-state threshold, eases power-rotation resistance, and protects Oyo's February 6 governorship handover.`;
+        banner.innerHTML = `<strong>🏆 SECTION 134 CONSTITUTIONAL FLOOR CLEARED (${statesCleared}/37 States):</strong> Pooling Oyo &amp; Bauchi blocs into a unified coalition clears the 24-state threshold, withstands electoral friction, and protects Oyo's February 6 governorship handover.`;
+      } else if (rigging > 0 && statesCleared >= 24) {
+        banner.className = 'banner warning';
+        banner.innerHTML = `<strong>⚠️ RIGGING / PLURALITY TRAP (${statesCleared}/37 States, ${natShare.toFixed(1)}% Share):</strong> Even though the coalition clears &ge;25% in ${statesCleared} states, ${Math.round(rigging * 100)}% asymmetric manipulation in unguarded states flips the national plurality lead to the incumbent (${(totalApcVotes / 1e6).toFixed(2)}M vs. ${(totalApmVotes / 1e6).toFixed(2)}M)—proving why 774-LGA polling-unit defense is non-negotiable.`;
       } else if (obiSurge) {
         banner.className = 'banner warning';
         banner.innerHTML = `<strong>⚠️ 6.1M VOTE-SURGE STRESS TEST (${statesCleared}/37 States):</strong> Even if APM replicates Peter Obi's historic 2023 surge (~${(totalApmVotes / 1e6).toFixed(2)}M votes), South-West vote-splitting and a 4-way opposition race cap spread at ${statesCleared} states—falling ${24 - statesCleared} states short of Section 134.`;
